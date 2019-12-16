@@ -1,8 +1,11 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class UserInterface extends JFrame{
+public class UserInterface extends JFrame implements ActionListener {
     private JPanel panel;
     private JTextField productTxtBox;
     private JTextField barCodeTxtBox;
@@ -33,11 +36,13 @@ public class UserInterface extends JFrame{
         this.setContentPane(panel);
         this.pack();
         init();
+        actionEvent();
 
     }
 
 
     private void init() {
+
         detailsTable.setModel(model);
         detailsTable.setAutoCreateRowSorter(true);
         detailsTable.setShowHorizontalLines(false);
@@ -45,13 +50,57 @@ public class UserInterface extends JFrame{
         model.addColumn("S.No");
         model.addColumn("ID");
         model.addColumn("Product Name");
+        model.addColumn("Price");
         model.addColumn("Quantity");
         model.addColumn("Expiry Date");
-
         dateTxtBox.setToolTipText("DD-MM-YY");
+        //createUIComponents();
+    }
 
+
+    private void actionEvent(){
+        addInButton.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        if(actionEvent.getSource() == addInButton){
+
+            String productName = productNameTxtBox.getText();
+            productNameTxtBox.setText("");
+
+            String productID = productTxtBox.getText();
+            productTxtBox.setText("");
+
+            String price = priceTxtBox.getText();
+            priceTxtBox.setText("");
+
+            String barcode = barCodeTxtBox.getText();
+            barCodeTxtBox.setText("");
+
+            String expiryDate = dateTxtBox.getText();
+            dateTxtBox.setText("");
+
+            String quantity = quantityTxtBox.getText();
+            quantityTxtBox.setText("");
+
+            model.addRow(new Object[]{"1",productID,productName,price,quantity,expiryDate});
+            JTableUtilities.setCellsAlignment(detailsTable, SwingConstants.CENTER);
+
+        }
     }
 
 
 
+//    private void createUIComponents() {
+//        UtilDateModel utilDateModel = new UtilDateModel();
+//        Properties properties = new Properties();
+//        properties.put("text.today", "Today");
+//        properties.put("text.month", "Month");
+//        properties.put("text.year", "Year");
+//        JDatePanelImpl1 = new JDatePanelImpl(utilDateModel,properties);
+//        JDatePickerImpl datePicker = new JDatePickerImpl(JDatePanelImpl1,new DateComponentFormatter());
+//
+//        this.add(datePicker);
+//    }
 }
