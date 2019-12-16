@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class UserInterface extends JFrame implements ActionListener {
     private JPanel panel;
@@ -21,8 +22,9 @@ public class UserInterface extends JFrame implements ActionListener {
             return false;
         }
     };
-    int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
-    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
+    private Connection dbConnection;
+    private PreparedStatement preparedStatement;
+    private ResultSet rs;
 
 
 
@@ -36,7 +38,6 @@ public class UserInterface extends JFrame implements ActionListener {
         this.pack();
         init();
         actionEvent();
-
     }
 
 
@@ -52,7 +53,19 @@ public class UserInterface extends JFrame implements ActionListener {
         model.addColumn("Price");
         model.addColumn("Quantity");
         model.addColumn("Expiry Date");
-        dateTxtBox.setToolTipText("DD-MM-YY");
+        dateTxtBox.setToolTipText("YYYY-MM-DD");
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+            preparedStatement = dbConnection.prepareStatement("select * from product_details");
+            rs = preparedStatement.executeQuery();
+            while (rs.next())
+            {
+                model.addRow(new Object[]{rs.getInt("s_no"), rs.getString("productId"), rs.getString("productName"),rs.getString("price"),rs.getString("quantity"),rs.getDate("expiryDate")});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        JTableUtilities.setCellsAlignment(detailsTable, SwingConstants.CENTER);
         //createUIComponents();
     }
 
@@ -66,27 +79,61 @@ public class UserInterface extends JFrame implements ActionListener {
         if(actionEvent.getSource() == addInButton){
 
             String productName = productNameTxtBox.getText();
-            productNameTxtBox.setText("");
-
             String productID = productTxtBox.getText();
-            productTxtBox.setText("");
-
             String price = priceTxtBox.getText();
-            priceTxtBox.setText("");
-
             String barcode = barCodeTxtBox.getText();
-            barCodeTxtBox.setText("");
-
             String expiryDate = dateTxtBox.getText();
-            dateTxtBox.setText("");
-
             String quantity = quantityTxtBox.getText();
-            quantityTxtBox.setText("");
 
-            model.addRow(new Object[]{"1",productID,productName,price,quantity,expiryDate});
+            if (validateInput(productID, price, barcode, expiryDate, quantity, productName)){
+                try {
+                    dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+                    preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`product_details` (`productName`, `productId`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?,?)");
+                    preparedStatement.setString (1, productName);
+                    preparedStatement.setString (2, productID);
+                    preparedStatement.setString (3, price);
+                    preparedStatement.setString (4, quantity);
+                    preparedStatement.setString (5, barcode);
+                    preparedStatement.setDate(6, Date.valueOf(expiryDate));
+                    preparedStatement.execute();
+                    dbConnection.close();
+                    if (rs.next())
+                    {
+                        model.addRow(new Object[]{rs.getInt("s_no"), rs.getString("productId"), rs.getString("productName"),rs.getString("price"),rs.getString("quantity"),rs.getDate("expiryDate")});
+                    }
+                    clear();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
             JTableUtilities.setCellsAlignment(detailsTable, SwingConstants.CENTER);
 
         }
+    }
+
+    private boolean validateInput(String productID, String price, String barcode, String expiryDate, String quantity, String productName) {
+
+
+        if(productName ==null) return false;
+        if (productID == null) return false;
+        if (Integer.parseInt(price) < 0) return false;
+        if (barcode == null) return false;
+        if (Integer.parseInt(quantity) < 0) return false;
+        if(!(expiryDate.matches("\\d{4}-\\d{2}-\\d{2}"))) return false;
+
+        return true;
+    }
+
+
+    private void clear(){
+        dateTxtBox.setText("");
+        quantityTxtBox.setText("");
+        barCodeTxtBox.setText("");
+        priceTxtBox.setText("");
+        productTxtBox.setText("");
+        productNameTxtBox.setText("");
     }
 
 
