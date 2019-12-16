@@ -65,7 +65,7 @@ public class UserInterface extends JFrame implements ActionListener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        JTableUtilities.setCellsAlignment(detailsTable, SwingConstants.CENTER);
+        JTableUtilities.setCellsAlignment(detailsTable);
         //createUIComponents();
     }
 
@@ -108,7 +108,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
             }
 
-            JTableUtilities.setCellsAlignment(detailsTable, SwingConstants.CENTER);
+            JTableUtilities.setCellsAlignment(detailsTable);
 
         }
     }

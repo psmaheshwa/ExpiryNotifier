@@ -2,11 +2,11 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
 
-public class JTableUtilities {
-    public static void setCellsAlignment(JTable table, int alignment)
+class JTableUtilities {
+    static void setCellsAlignment(JTable table)
     {
         DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
-        rightRenderer.setHorizontalAlignment(alignment);
+        rightRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
         TableModel tableModel = table.getModel();
 
