@@ -121,9 +121,7 @@ public class UserInterface extends JFrame implements ActionListener {
         if (Integer.parseInt(price) < 0) return false;
         if (barcode == null) return false;
         if (Integer.parseInt(quantity) < 0) return false;
-        if(!(expiryDate.matches("\\d{4}-\\d{2}-\\d{2}"))) return false;
-
-        return true;
+        return expiryDate.matches("\\d{4}-\\d{2}-\\d{2}");
     }
 
 
