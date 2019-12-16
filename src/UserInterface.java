@@ -3,7 +3,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class UserInterface extends JFrame{
-    private JFrame frame;
     private JPanel panel;
     private JTextField productTxtBox;
     private JTextField barCodeTxtBox;
@@ -20,6 +19,8 @@ public class UserInterface extends JFrame{
             return false;
         }
     };
+    int month = java.util.Calendar.getInstance().get(java.util.Calendar.MONTH);
+    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);;
 
 
 
@@ -37,7 +38,6 @@ public class UserInterface extends JFrame{
 
 
     private void init() {
-
         detailsTable.setModel(model);
         detailsTable.setAutoCreateRowSorter(true);
         detailsTable.setShowHorizontalLines(false);
@@ -48,7 +48,10 @@ public class UserInterface extends JFrame{
         model.addColumn("Quantity");
         model.addColumn("Expiry Date");
 
-
+        dateTxtBox.setToolTipText("DD-MM-YY");
 
     }
+
+
+
 }
