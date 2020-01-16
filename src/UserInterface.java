@@ -7,14 +7,12 @@ import java.sql.*;
 
 public class UserInterface extends JFrame implements ActionListener {
     private JPanel panel;
-    private JTextField productTxtBox;
     private JTextField barCodeTxtBox;
     private JTextField productNameTxtBox;
     private JTextField priceTxtBox;
     private JTextField quantityTxtBox;
     private JTable detailsTable;
     private JButton addInButton;
-    private JButton sellOutButton;
     private JTextField dateTxtBox;
     private JButton pickButton;
     private DefaultTableModel model = new DefaultTableModel() {
@@ -79,22 +77,20 @@ public class UserInterface extends JFrame implements ActionListener {
         if(actionEvent.getSource() == addInButton){
 
             String productName = productNameTxtBox.getText();
-            String productID = productTxtBox.getText();
             String price = priceTxtBox.getText();
             String barcode = barCodeTxtBox.getText();
             String expiryDate = dateTxtBox.getText();
             String quantity = quantityTxtBox.getText();
 
-            if (validateInput(productID, price, barcode, expiryDate, quantity, productName)){
+            if (validateInput(price, barcode, expiryDate, quantity, productName)){
                 try {
                     dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
-                    preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`product_details` (`productName`, `productId`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?,?)");
+                    preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`product_details` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?,?)");
                     preparedStatement.setString (1, productName);
-                    preparedStatement.setString (2, productID);
-                    preparedStatement.setString (3, price);
-                    preparedStatement.setString (4, quantity);
-                    preparedStatement.setString (5, barcode);
-                    preparedStatement.setDate(6, Date.valueOf(expiryDate));
+                    preparedStatement.setString (2, price);
+                    preparedStatement.setString (3, quantity);
+                    preparedStatement.setString (4, barcode);
+                    preparedStatement.setDate(5, Date.valueOf(expiryDate));
                     preparedStatement.execute();
                     dbConnection.close();
                     if (rs.next())
@@ -113,11 +109,10 @@ public class UserInterface extends JFrame implements ActionListener {
         }
     }
 
-    private boolean validateInput(String productID, String price, String barcode, String expiryDate, String quantity, String productName) {
+    private boolean validateInput(String price, String barcode, String expiryDate, String quantity, String productName) {
 
 
         if(productName ==null) return false;
-        if (productID == null) return false;
         if (Integer.parseInt(price) < 0) return false;
         if (barcode == null) return false;
         if (Integer.parseInt(quantity) < 0) return false;
@@ -130,7 +125,6 @@ public class UserInterface extends JFrame implements ActionListener {
         quantityTxtBox.setText("");
         barCodeTxtBox.setText("");
         priceTxtBox.setText("");
-        productTxtBox.setText("");
         productNameTxtBox.setText("");
     }
 
