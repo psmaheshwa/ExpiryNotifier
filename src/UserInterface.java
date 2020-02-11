@@ -15,6 +15,8 @@ public class UserInterface extends JFrame implements ActionListener {
     private JButton addInButton;
     private JTextField dateTxtBox;
     private JButton pickButton;
+    private JButton deleteButton;
+    private JButton updateButton;
     private DefaultTableModel model = new DefaultTableModel() {
         public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
@@ -22,12 +24,9 @@ public class UserInterface extends JFrame implements ActionListener {
     };
     private Connection dbConnection;
     private PreparedStatement preparedStatement;
-    private ResultSet rs;
+    private ResultSet resultSet;
 
-
-
-    UserInterface()
-    {
+    UserInterface() {
         this.setTitle("Expiry Notifier");
         this.setMinimumSize(new Dimension(800,600));
         this.setVisible(true);
@@ -38,6 +37,19 @@ public class UserInterface extends JFrame implements ActionListener {
         actionEvent();
     }
 
+    private void dbInit() {
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+            preparedStatement = dbConnection.prepareStatement("select * from product_details");
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next())
+            {
+                model.addRow(new Object[]{resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void init() {
 
@@ -45,67 +57,34 @@ public class UserInterface extends JFrame implements ActionListener {
         detailsTable.setAutoCreateRowSorter(true);
         detailsTable.setShowHorizontalLines(false);
         detailsTable.setShowVerticalLines(false);
-        model.addColumn("S.No");
-        model.addColumn("ID");
+        model.addColumn("Barcode");
         model.addColumn("Product Name");
         model.addColumn("Price");
         model.addColumn("Quantity");
         model.addColumn("Expiry Date");
         dateTxtBox.setToolTipText("YYYY-MM-DD");
-        try {
-            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
-            preparedStatement = dbConnection.prepareStatement("select * from product_details");
-            rs = preparedStatement.executeQuery();
-            while (rs.next())
-            {
-                model.addRow(new Object[]{rs.getInt("s_no"), rs.getString("productId"), rs.getString("productName"),rs.getString("price"),rs.getString("quantity"),rs.getDate("expiryDate")});
+        dbInit();
+        detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                mouseclicked();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        JTableUtilities.setCellsAlignment(detailsTable);
-        //createUIComponents();
+        });
+        //JTableUtilities.setCellsAlignment(detailsTable);
     }
-
 
     private void actionEvent(){
         addInButton.addActionListener(this);
+        deleteButton.addActionListener(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getSource() == addInButton){
-
-            String productName = productNameTxtBox.getText();
-            String price = priceTxtBox.getText();
-            String barcode = barCodeTxtBox.getText();
-            String expiryDate = dateTxtBox.getText();
-            String quantity = quantityTxtBox.getText();
-
-            if (validateInput(price, barcode, expiryDate, quantity, productName)){
-                try {
-                    dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
-                    preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`product_details` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?,?)");
-                    preparedStatement.setString (1, productName);
-                    preparedStatement.setString (2, price);
-                    preparedStatement.setString (3, quantity);
-                    preparedStatement.setString (4, barcode);
-                    preparedStatement.setDate(5, Date.valueOf(expiryDate));
-                    preparedStatement.execute();
-                    dbConnection.close();
-                    if (rs.next())
-                    {
-                        model.addRow(new Object[]{rs.getInt("s_no"), rs.getString("productId"), rs.getString("productName"),rs.getString("price"),rs.getString("quantity"),rs.getDate("expiryDate")});
-                    }
-                    clear();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            JTableUtilities.setCellsAlignment(detailsTable);
-
+            addStock();
+        }
+        if(actionEvent.getSource() == deleteButton)
+        {
+            deleteStock();
         }
     }
 
@@ -119,7 +98,6 @@ public class UserInterface extends JFrame implements ActionListener {
         return expiryDate.matches("\\d{4}-\\d{2}-\\d{2}");
     }
 
-
     private void clear(){
         dateTxtBox.setText("");
         quantityTxtBox.setText("");
@@ -128,17 +106,54 @@ public class UserInterface extends JFrame implements ActionListener {
         productNameTxtBox.setText("");
     }
 
+    private void addStock() {
+        String productName = productNameTxtBox.getText();
+        String price = priceTxtBox.getText();
+        String barcode = barCodeTxtBox.getText();
+        String expiryDate = dateTxtBox.getText();
+        String quantity = quantityTxtBox.getText();
 
+        if (validateInput(price, barcode, expiryDate, quantity, productName)){
+            try {
+                dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+                preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`product_details` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?)");
+                preparedStatement.setString (1, productName);
+                preparedStatement.setString (2, price);
+                preparedStatement.setString (3, quantity);
+                preparedStatement.setString (4, barcode);
+                preparedStatement.setDate(5, Date.valueOf(expiryDate));
+                preparedStatement.execute();
+                model = new DefaultTableModel() {
+                    public boolean isCellEditable(int rowIndex, int mColIndex) {
+                        return false;
+                    }
+                };
+                model.setRowCount(0);
+                init();
+                if (resultSet.next())
+                {
+                    model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                }
+                dbConnection.close();
+                clear();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
 
-//    private void createUIComponents() {
-//        UtilDateModel utilDateModel = new UtilDateModel();
-//        Properties properties = new Properties();
-//        properties.put("text.today", "Today");
-//        properties.put("text.month", "Month");
-//        properties.put("text.year", "Year");
-//        JDatePanelImpl1 = new JDatePanelImpl(utilDateModel,properties);
-//        JDatePickerImpl datePicker = new JDatePickerImpl(JDatePanelImpl1,new DateComponentFormatter());
-//
-//        this.add(datePicker);
-//    }
+        }
+
+        JTableUtilities.setCellsAlignment(detailsTable);
+    }
+
+    private void deleteStock() {
+
+    }
+
+    private void mouseclicked(){
+        DefaultTableModel model = (DefaultTableModel)detailsTable.getModel();
+        int selectedrow =  detailsTable.getSelectedRow();
+        barCodeTxtBox.setText(model.getValueAt(selectedrow,1).toString());
+        quantityTxtBox.setText(model.getValueAt(selectedrow,3).toString());
+
+    }
 }
