@@ -25,6 +25,7 @@ public class UserInterface extends JFrame implements ActionListener {
     private Connection dbConnection;
     private PreparedStatement preparedStatement;
     private ResultSet resultSet;
+    private int ID;
 
     UserInterface() {
         this.setTitle("Expiry Notifier");
@@ -44,7 +45,7 @@ public class UserInterface extends JFrame implements ActionListener {
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
             {
-                model.addRow(new Object[]{resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                model.addRow(new Object[]{resultSet.getInt("s_no"),resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -57,6 +58,7 @@ public class UserInterface extends JFrame implements ActionListener {
         detailsTable.setAutoCreateRowSorter(true);
         detailsTable.setShowHorizontalLines(false);
         detailsTable.setShowVerticalLines(false);
+        model.addColumn("ID");
         model.addColumn("Barcode");
         model.addColumn("Product Name");
         model.addColumn("Price");
@@ -75,6 +77,7 @@ public class UserInterface extends JFrame implements ActionListener {
     private void actionEvent(){
         addInButton.addActionListener(this);
         deleteButton.addActionListener(this);
+        updateButton.addActionListener(this);
     }
 
     @Override
@@ -85,6 +88,10 @@ public class UserInterface extends JFrame implements ActionListener {
         if(actionEvent.getSource() == deleteButton)
         {
             deleteStock();
+        }
+        if(actionEvent.getSource() == updateButton)
+        {
+            updateStock();
         }
     }
 
@@ -130,10 +137,6 @@ public class UserInterface extends JFrame implements ActionListener {
                 };
                 model.setRowCount(0);
                 init();
-                if (resultSet.next())
-                {
-                    model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
-                }
                 dbConnection.close();
                 clear();
             } catch (SQLException e) {
@@ -142,20 +145,67 @@ public class UserInterface extends JFrame implements ActionListener {
 
         }
 
-        JTableUtilities.setCellsAlignment(detailsTable);
+        //JTableUtilities.setCellsAlignment(detailsTable);
     }
 
     private void deleteStock() {
+        String barCode = barCodeTxtBox.getText();
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+            String sql = "delete from product_details where barcode = ?";
+            //preparedStatement = dbConnection.prepareStatement("DELETE FROM product_details where barcode = '+barCode'");
+            preparedStatement = dbConnection.prepareStatement(sql);
+            preparedStatement.setString(1,barCode);
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        model = new DefaultTableModel() {
+            public boolean isCellEditable(int rowIndex, int mColIndex) {
+                return false;
+            }
+        };
+        model.setRowCount(0);
+        init();
+        clear();
+    }
 
+    private void updateStock() {
+        String expiryDate = dateTxtBox.getText();
+        try {
+                dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+                String sql = "UPDATE product_details SET barcode = ?," + "productName = ? , " + "price = ? ,"+ "quantity = ? , " + "expiryDate = ?  " + "where s_no = ?";
+                preparedStatement = dbConnection.prepareStatement(sql);
+                preparedStatement.setString(1,barCodeTxtBox.getText());
+                preparedStatement.setString(2,productNameTxtBox.getText());
+                preparedStatement.setString(3,priceTxtBox.getText());
+                preparedStatement.setString(4,quantityTxtBox.getText());
+                preparedStatement.setDate(5,Date.valueOf(dateTxtBox.getText()));
+                preparedStatement.setInt(6,ID);
+                preparedStatement.execute();
+                model = new DefaultTableModel() {
+                    public boolean isCellEditable(int rowIndex, int mColIndex) {
+                        return false;
+                    }
+                };
+                model.setRowCount(0);
+                init();
+                dbConnection.close();
+                clear();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
     }
 
     private void mouseClicked(){
         DefaultTableModel model = (DefaultTableModel)detailsTable.getModel();
         int selectedRow =  detailsTable.getSelectedRow();
-        barCodeTxtBox.setText(model.getValueAt(selectedRow,0).toString());
-        productNameTxtBox.setText(model.getValueAt(selectedRow,1).toString());
-        priceTxtBox.setText(model.getValueAt(selectedRow,2).toString());
-        quantityTxtBox.setText(model.getValueAt(selectedRow,3).toString());
-        dateTxtBox.setText(model.getValueAt(selectedRow,4).toString());
+        barCodeTxtBox.setText(model.getValueAt(selectedRow,1).toString());
+        productNameTxtBox.setText(model.getValueAt(selectedRow,2).toString());
+        priceTxtBox.setText(model.getValueAt(selectedRow,3).toString());
+        quantityTxtBox.setText(model.getValueAt(selectedRow,4).toString());
+        dateTxtBox.setText(model.getValueAt(selectedRow,5).toString());
+        ID = Integer.parseInt(model.getValueAt(selectedRow,0).toString());
     }
+
 }
