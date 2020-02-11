@@ -66,7 +66,7 @@ public class UserInterface extends JFrame implements ActionListener {
         dbInit();
         detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                mouseclicked();
+                UserInterface.this.mouseClicked();
             }
         });
         //JTableUtilities.setCellsAlignment(detailsTable);
@@ -149,11 +149,13 @@ public class UserInterface extends JFrame implements ActionListener {
 
     }
 
-    private void mouseclicked(){
+    private void mouseClicked(){
         DefaultTableModel model = (DefaultTableModel)detailsTable.getModel();
-        int selectedrow =  detailsTable.getSelectedRow();
-        barCodeTxtBox.setText(model.getValueAt(selectedrow,1).toString());
-        quantityTxtBox.setText(model.getValueAt(selectedrow,3).toString());
-
+        int selectedRow =  detailsTable.getSelectedRow();
+        barCodeTxtBox.setText(model.getValueAt(selectedRow,0).toString());
+        productNameTxtBox.setText(model.getValueAt(selectedRow,1).toString());
+        priceTxtBox.setText(model.getValueAt(selectedRow,2).toString());
+        quantityTxtBox.setText(model.getValueAt(selectedRow,3).toString());
+        dateTxtBox.setText(model.getValueAt(selectedRow,4).toString());
     }
 }
