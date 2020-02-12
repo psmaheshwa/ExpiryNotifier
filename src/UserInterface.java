@@ -45,7 +45,6 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         dateTxtBox.setValue(simpleDateFormat.format(new java.util.Date()));
         calenderWindow = new CalenderWindow();
         calenderWindow.addPropertyChangeListener(this);
-        //  calenderWindow.setUndecorated(true);
     }
 
     private void dbInit() {
