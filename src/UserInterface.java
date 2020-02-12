@@ -3,9 +3,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 
-public class UserInterface extends JFrame implements ActionListener {
+public class UserInterface extends JFrame implements ActionListener, PropertyChangeListener  {
     private JPanel panel;
     private JTextField barCodeTxtBox;
     private JTextField productNameTxtBox;
@@ -13,10 +16,10 @@ public class UserInterface extends JFrame implements ActionListener {
     private JTextField quantityTxtBox;
     private JTable detailsTable;
     private JButton addInButton;
-    private JTextField dateTxtBox;
     private JButton pickButton;
     private JButton deleteButton;
     private JButton updateButton;
+    private JFormattedTextField dateTxtBox;
     private DefaultTableModel model = new DefaultTableModel() {
         public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
@@ -26,6 +29,9 @@ public class UserInterface extends JFrame implements ActionListener {
     private PreparedStatement preparedStatement;
     private ResultSet resultSet;
     private int ID;
+    private CalenderWindow calenderWindow;
+    private String datePattern = "yyyy-MM-dd";
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(datePattern);
 
     UserInterface() {
         this.setTitle("Expiry Notifier");
@@ -36,6 +42,10 @@ public class UserInterface extends JFrame implements ActionListener {
         this.pack();
         init();
         actionEvent();
+        dateTxtBox.setValue(simpleDateFormat.format(new java.util.Date()));
+        calenderWindow = new CalenderWindow();
+        calenderWindow.addPropertyChangeListener(this);
+        //  calenderWindow.setUndecorated(true);
     }
 
     private void dbInit() {
@@ -64,7 +74,6 @@ public class UserInterface extends JFrame implements ActionListener {
         model.addColumn("Price");
         model.addColumn("Quantity");
         model.addColumn("Expiry Date");
-        dateTxtBox.setToolTipText("YYYY-MM-DD");
         dbInit();
         detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -78,6 +87,7 @@ public class UserInterface extends JFrame implements ActionListener {
         addInButton.addActionListener(this);
         deleteButton.addActionListener(this);
         updateButton.addActionListener(this);
+        pickButton.addActionListener(this);
     }
 
     @Override
@@ -93,6 +103,10 @@ public class UserInterface extends JFrame implements ActionListener {
         {
             updateStock();
         }
+        if(actionEvent.getSource() == pickButton)
+        {
+            calenderEvent();
+        }
     }
 
     private boolean validateInput(String price, String barcode, String expiryDate, String quantity, String productName) {
@@ -102,11 +116,11 @@ public class UserInterface extends JFrame implements ActionListener {
         if (Integer.parseInt(price) < 0) return false;
         if (barcode == null) return false;
         if (Integer.parseInt(quantity) < 0) return false;
-        return expiryDate.matches("\\d{4}-\\d{2}-\\d{2}");
+        return expiryDate.matches("\\d{2}-\\d{2}-\\d{4}");
     }
 
     private void clear(){
-        dateTxtBox.setText("");
+        dateTxtBox.setValue(simpleDateFormat.format(new java.util.Date()));
         quantityTxtBox.setText("");
         barCodeTxtBox.setText("");
         priceTxtBox.setText("");
@@ -207,5 +221,23 @@ public class UserInterface extends JFrame implements ActionListener {
         dateTxtBox.setText(model.getValueAt(selectedRow,5).toString());
         ID = Integer.parseInt(model.getValueAt(selectedRow,0).toString());
     }
+
+    private void calenderEvent()
+    {
+        calenderWindow.setLocation(dateTxtBox.getLocationOnScreen().x,(dateTxtBox.getLocationOnScreen().y + dateTxtBox.getHeight()));
+        calenderWindow.setVisible(true);
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        if(propertyChangeEvent.getPropertyName().equals("selectedDate"))
+        {
+            java.util.Calendar cal = (java.util.Calendar)propertyChangeEvent.getNewValue();
+            java.util.Date selDate = cal.getTime();
+            dateTxtBox.setValue(simpleDateFormat.format(selDate));
+        }
+    }
+
+
 
 }
