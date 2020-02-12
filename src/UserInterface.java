@@ -1,3 +1,5 @@
+import com.mindfusion.common.DateTime;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -222,8 +224,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         ID = Integer.parseInt(model.getValueAt(selectedRow,0).toString());
     }
 
-    private void calenderEvent()
-    {
+    private void calenderEvent() {
         calenderWindow.setLocation(dateTxtBox.getLocationOnScreen().x,(dateTxtBox.getLocationOnScreen().y + dateTxtBox.getHeight()));
         calenderWindow.setVisible(true);
     }
@@ -237,7 +238,5 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             dateTxtBox.setValue(simpleDateFormat.format(selDate));
         }
     }
-
-
 
 }

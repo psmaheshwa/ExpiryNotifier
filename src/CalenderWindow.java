@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.util.Date;
 
 public class CalenderWindow extends JFrame {
 
@@ -19,8 +20,7 @@ public class CalenderWindow extends JFrame {
 
     private PropertyChangeSupport changeSupport;
 
-    CalenderWindow()
-    {
+    CalenderWindow() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(235,200);
         calendar.setTheme(ThemeType.Light);
@@ -32,8 +32,7 @@ public class CalenderWindow extends JFrame {
         calendar.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(e.getClickCount() == 2)
-                {
+                if(e.getClickCount() == 2) {
                     calendar.getSelection().reset();
                     DateTime pointedDate = calendar.getDateAt(e.getX(),e.getY());
                     java.util.Calendar cal = java.util.Calendar.getInstance();
@@ -46,22 +45,23 @@ public class CalenderWindow extends JFrame {
 
     }
 
-
-    private void setSelectedDate(java.util.Calendar newDate)
-    {
+    private void setSelectedDate(java.util.Calendar newDate) {
         java.util.Calendar oldDate = (java.util.Calendar)selectedDate.clone();
         selectedDate = newDate;
         changeSupport.firePropertyChange("selectedDate",oldDate,newDate);
     }
 
-    public java.util.Calendar getSelectedDate()
-    {
+    public java.util.Calendar getSelectedDate() {
         return selectedDate;
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener listener)
-    {
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
 
+    public void resetSelection(Date date) {
+        calendar.getSelection().reset();
+        calendar.getSelection().set(new DateTime(date));
+        calendar.setDate(new DateTime(date));
+    }
 }
