@@ -8,7 +8,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Date;
 
 public class CalenderWindow extends JFrame {
 
@@ -54,5 +53,5 @@ public class CalenderWindow extends JFrame {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
-    
+
 }
