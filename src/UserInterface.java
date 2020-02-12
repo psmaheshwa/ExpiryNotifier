@@ -1,5 +1,3 @@
-import com.mindfusion.common.DateTime;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -57,7 +55,23 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
             {
-                model.addRow(new Object[]{resultSet.getInt("s_no"),resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                    String today = simpleDateFormat.format((new java.util.Date()));
+                    String tempDate = String.valueOf(resultSet.getDate("expiryDate"));
+                    if(today.compareTo(tempDate) <= 0) {
+                        model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                    }else
+                    {
+                        preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`expired_products` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?)");
+                        preparedStatement.setString (1, resultSet.getString("productName"));
+                        preparedStatement.setString (2, resultSet.getString("price"));
+                        preparedStatement.setString (3, resultSet.getString("quantity"));
+                        preparedStatement.setString (4, resultSet.getString("barcode"));
+                        preparedStatement.setDate(5, resultSet.getDate("expiryDate"));
+                        preparedStatement.execute();
+                        preparedStatement = dbConnection.prepareStatement("delete from product_details where s_no = ?");
+                        preparedStatement.setInt(1,resultSet.getInt("s_no"));
+                        preparedStatement.execute();
+                    }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,7 +132,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         if (Integer.parseInt(price) < 0) return false;
         if (barcode == null) return false;
         if (Integer.parseInt(quantity) < 0) return false;
-        return expiryDate.matches("\\d{2}-\\d{2}-\\d{4}");
+        return expiryDate.matches("\\d{4}-\\d{2}-\\d{2}");
     }
 
     private void clear(){
