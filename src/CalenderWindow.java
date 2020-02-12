@@ -51,17 +51,8 @@ public class CalenderWindow extends JFrame {
         changeSupport.firePropertyChange("selectedDate",oldDate,newDate);
     }
 
-    public java.util.Calendar getSelectedDate() {
-        return selectedDate;
-    }
-
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
-
-    public void resetSelection(Date date) {
-        calendar.getSelection().reset();
-        calendar.getSelection().set(new DateTime(date));
-        calendar.setDate(new DateTime(date));
-    }
+    
 }
