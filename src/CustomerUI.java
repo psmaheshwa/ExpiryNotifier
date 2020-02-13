@@ -3,6 +3,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 
 public class CustomerUI extends JFrame implements ActionListener {
     private JTextField nameTxtBox;
@@ -26,6 +27,10 @@ public class CustomerUI extends JFrame implements ActionListener {
         }
     };
     Table table = new Table();
+    private Connection dbConnection;
+    private PreparedStatement preparedStatement;
+    private ResultSet resultSet;
+
 
 
     CustomerUI()
@@ -36,8 +41,7 @@ public class CustomerUI extends JFrame implements ActionListener {
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(panel);
         this.pack();
-        table.init(stockTable,model1);
-        table.init(orderTable,model2);
+        table.init(stockTable,model1,"select * from product_details");
         actionEvent();
     }
 
@@ -52,12 +56,26 @@ public class CustomerUI extends JFrame implements ActionListener {
         if(actionEvent.getSource() == addButton) {
             addItem();
         }
+        if (actionEvent.getSource() == scanButton) {
+            scanner();
+        }
     }
 
 
 
-    public void addItem() {
+    private void addItem() {
 
+    }
+
+    private void scanner(){
+        String barcode = barcodeTxtBox.getText();
+        String sql = "select * from product_details where barcode = " + barcode;
+        model1 = new DefaultTableModel() {
+            public boolean isCellEditable(int rowIndex, int mColIndex) {
+                return false;
+            }
+        };
+        table.init(stockTable,model1,sql);
     }
 
 }

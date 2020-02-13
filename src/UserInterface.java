@@ -42,7 +42,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(panel);
         this.pack();
-        table.init(detailsTable,model);
+        table.init(detailsTable,model,"select * from product_details");
         detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 UserInterface.this.mouseClicked();
@@ -120,8 +120,9 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                 preparedStatement.setString (4, barcode);
                 preparedStatement.setDate(5, Date.valueOf(expiryDate));
                 preparedStatement.execute();
-                dbRefresh(detailsTable,model);
+                tableRefresh(detailsTable,model);
                 dbConnection.close();
+                clear();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -149,7 +150,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             }
         };
         model.setRowCount(0);
-        table.init(detailsTable,model);
+        table.init(detailsTable,model,"select * from product_details");
         clear();
     }
 
@@ -165,8 +166,9 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                 preparedStatement.setDate(5,Date.valueOf(dateTxtBox.getText()));
                 preparedStatement.setInt(6,ID);
                 preparedStatement.execute();
-                dbRefresh(detailsTable,model);
+                tableRefresh(detailsTable,model);
                 dbConnection.close();
+                clear();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -226,21 +228,20 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
 
                 detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
             }
-            dbRefresh(detailsTable,model);
+            tableRefresh(detailsTable,model);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void dbRefresh(JTable jTable, DefaultTableModel model)
-    {
+    private void tableRefresh(JTable jTable, DefaultTableModel model) {
         model = new DefaultTableModel() {
             public boolean isCellEditable(int rowIndex, int mColIndex) {
                 return false;
             }
         };
         model.setRowCount(0);
-        table.init(jTable,model);
+        table.init(jTable,model,"select * from product_details");
         clear();
     }
 

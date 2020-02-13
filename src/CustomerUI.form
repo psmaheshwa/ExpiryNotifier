@@ -68,7 +68,9 @@
       </component>
       <scrollpane id="f50f7">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <maximum-size width="-1" height="700"/>
+          </grid>
         </constraints>
         <properties/>
         <border type="none"/>
@@ -80,22 +82,36 @@
             </properties>
             <border type="none"/>
             <children>
-              <component id="934d0" class="javax.swing.JTable" binding="stockTable">
+              <scrollpane id="ba8a2">
                 <constraints>
                   <splitpane position="left"/>
                 </constraints>
-                <properties>
-                  <minimumSize width="30" height="150"/>
-                </properties>
-              </component>
-              <component id="8a614" class="javax.swing.JTable" binding="orderTable">
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="934d0" class="javax.swing.JTable" binding="stockTable">
+                    <constraints/>
+                    <properties>
+                      <minimumSize width="30" height="150"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+              <scrollpane id="d8001">
                 <constraints>
                   <splitpane position="right"/>
                 </constraints>
-                <properties>
-                  <minimumSize width="30" height="200"/>
-                </properties>
-              </component>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="8a614" class="javax.swing.JTable" binding="orderTable">
+                    <constraints/>
+                    <properties>
+                      <minimumSize width="30" height="200"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
             </children>
           </splitpane>
         </children>
