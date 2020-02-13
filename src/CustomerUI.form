@@ -19,7 +19,7 @@
       <component id="dda79" class="javax.swing.JTextField" binding="nameTxtBox">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+            <preferred-size width="150" height="30"/>
           </grid>
         </constraints>
         <properties/>
@@ -43,7 +43,7 @@
       <component id="f28ff" class="javax.swing.JTextField" binding="barcodeTxtBox">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+            <preferred-size width="150" height="30"/>
           </grid>
         </constraints>
         <properties/>
@@ -51,14 +51,16 @@
       <component id="7be90" class="javax.swing.JTextField" binding="mobNotxtBox">
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+            <preferred-size width="150" height="30"/>
           </grid>
         </constraints>
         <properties/>
       </component>
       <component id="c99d5" class="javax.swing.JButton" binding="scanButton" default-binding="true">
         <constraints>
-          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="30"/>
+          </grid>
         </constraints>
         <properties>
           <text value="Scan"/>
@@ -83,7 +85,7 @@
                   <splitpane position="left"/>
                 </constraints>
                 <properties>
-                  <minimumSize width="30" height="200"/>
+                  <minimumSize width="30" height="150"/>
                 </properties>
               </component>
               <component id="8a614" class="javax.swing.JTable" binding="orderTable">
@@ -100,7 +102,9 @@
       </scrollpane>
       <component id="5d0ad" class="javax.swing.JButton" binding="addButton" default-binding="true">
         <constraints>
-          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="3" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="30"/>
+          </grid>
         </constraints>
         <properties>
           <text value="Add"/>
@@ -108,7 +112,9 @@
       </component>
       <component id="4006a" class="javax.swing.JButton" binding="orderButton" default-binding="true">
         <constraints>
-          <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="4" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="-1" height="30"/>
+          </grid>
         </constraints>
         <properties>
           <text value="Order"/>
@@ -125,7 +131,7 @@
       <component id="54f60" class="javax.swing.JTextField" binding="textField1" default-binding="true">
         <constraints>
           <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="150" height="-1"/>
+            <preferred-size width="150" height="30"/>
           </grid>
         </constraints>
         <properties/>

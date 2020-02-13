@@ -33,6 +33,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
     private CalenderWindow calenderWindow;
     private String datePattern = "yyyy-MM-dd";
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(datePattern);
+    private Table table = new Table();
 
     UserInterface() {
         this.setTitle("Expiry Notifier");
@@ -41,47 +42,16 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(panel);
         this.pack();
-        init();
-        actionEvent();
-        dateTxtBox.setValue(simpleDateFormat.format(new java.util.Date()));
-        calenderWindow = new CalenderWindow();
-        calenderWindow.addPropertyChangeListener(this);
-    }
-
-    private void dbInit() {
-        try {
-            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
-            preparedStatement = dbConnection.prepareStatement("select * from product_details");
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next())
-            {
-                   model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
-                   detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void init() {
-
-        detailsTable.setModel(model);
-        detailsTable.setAutoCreateRowSorter(true);
-        detailsTable.setShowHorizontalLines(false);
-        detailsTable.setShowVerticalLines(false);
-        model.addColumn("ID");
-        model.addColumn("Barcode");
-        model.addColumn("Product Name");
-        model.addColumn("Price");
-        model.addColumn("Quantity");
-        model.addColumn("Expiry Date");
-        dbInit();
+        table.init(detailsTable,model);
         detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 UserInterface.this.mouseClicked();
             }
         });
-        //JTableUtilities.setCellsAlignment(detailsTable);
+        actionEvent();
+        dateTxtBox.setValue(simpleDateFormat.format(new java.util.Date()));
+        calenderWindow = new CalenderWindow();
+        calenderWindow.addPropertyChangeListener(this);
     }
 
     private void actionEvent(){
@@ -150,15 +120,8 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                 preparedStatement.setString (4, barcode);
                 preparedStatement.setDate(5, Date.valueOf(expiryDate));
                 preparedStatement.execute();
-                model = new DefaultTableModel() {
-                    public boolean isCellEditable(int rowIndex, int mColIndex) {
-                        return false;
-                    }
-                };
-                model.setRowCount(0);
-                init();
+                dbRefresh(detailsTable,model);
                 dbConnection.close();
-                clear();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -186,12 +149,11 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             }
         };
         model.setRowCount(0);
-        init();
+        table.init(detailsTable,model);
         clear();
     }
 
     private void updateStock() {
-        String expiryDate = dateTxtBox.getText();
         try {
                 dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
                 String sql = "UPDATE product_details SET barcode = ?," + "productName = ? , " + "price = ? ,"+ "quantity = ? , " + "expiryDate = ?  " + "where s_no = ?";
@@ -203,15 +165,8 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                 preparedStatement.setDate(5,Date.valueOf(dateTxtBox.getText()));
                 preparedStatement.setInt(6,ID);
                 preparedStatement.execute();
-                model = new DefaultTableModel() {
-                    public boolean isCellEditable(int rowIndex, int mColIndex) {
-                        return false;
-                    }
-                };
-                model.setRowCount(0);
-                init();
+                dbRefresh(detailsTable,model);
                 dbConnection.close();
-                clear();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -271,16 +226,22 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
 
                 detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
             }
-            model = new DefaultTableModel() {
-                public boolean isCellEditable(int rowIndex, int mColIndex) {
-                    return false;
-                }
-            };
-            model.setRowCount(0);
-            init();
+            dbRefresh(detailsTable,model);
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private void dbRefresh(JTable jTable, DefaultTableModel model)
+    {
+        model = new DefaultTableModel() {
+            public boolean isCellEditable(int rowIndex, int mColIndex) {
+                return false;
+            }
+        };
+        model.setRowCount(0);
+        table.init(jTable,model);
+        clear();
     }
 
 }
