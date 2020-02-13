@@ -60,6 +60,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                         model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
                     }else
                     {
+                        model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
                         preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`expired_products` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?)");
                         preparedStatement.setString (1, resultSet.getString("productName"));
                         preparedStatement.setString (2, resultSet.getString("price"));
@@ -67,10 +68,11 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                         preparedStatement.setString (4, resultSet.getString("barcode"));
                         preparedStatement.setDate(5, resultSet.getDate("expiryDate"));
                         preparedStatement.execute();
-                        preparedStatement = dbConnection.prepareStatement("delete from product_details where s_no = ?");
-                        preparedStatement.setInt(1,resultSet.getInt("s_no"));
-                        preparedStatement.execute();
+//                        preparedStatement = dbConnection.prepareStatement("delete from product_details where s_no = ?");
+//                        preparedStatement.setInt(1,resultSet.getInt("s_no"));
+//                        preparedStatement.execute();
                     }
+                detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
             }
         } catch (SQLException e) {
             e.printStackTrace();
