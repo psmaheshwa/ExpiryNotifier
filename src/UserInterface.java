@@ -20,6 +20,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
     private JButton deleteButton;
     private JButton updateButton;
     private JFormattedTextField dateTxtBox;
+    private JButton notifyButton;
     private DefaultTableModel model = new DefaultTableModel() {
         public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
@@ -54,25 +55,8 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
             {
-                    String today = simpleDateFormat.format((new java.util.Date()));
-                    String tempDate = String.valueOf(resultSet.getDate("expiryDate"));
-                    if(today.compareTo(tempDate) <= 0) {
-                        model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
-                    }else
-                    {
-                        model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
-                        preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`expired_products` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?)");
-                        preparedStatement.setString (1, resultSet.getString("productName"));
-                        preparedStatement.setString (2, resultSet.getString("price"));
-                        preparedStatement.setString (3, resultSet.getString("quantity"));
-                        preparedStatement.setString (4, resultSet.getString("barcode"));
-                        preparedStatement.setDate(5, resultSet.getDate("expiryDate"));
-                        preparedStatement.execute();
-//                        preparedStatement = dbConnection.prepareStatement("delete from product_details where s_no = ?");
-//                        preparedStatement.setInt(1,resultSet.getInt("s_no"));
-//                        preparedStatement.execute();
-                    }
-                detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
+                   model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                   detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -105,6 +89,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         deleteButton.addActionListener(this);
         updateButton.addActionListener(this);
         pickButton.addActionListener(this);
+        notifyButton.addActionListener(this);
     }
 
     @Override
@@ -123,6 +108,10 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         if(actionEvent.getSource() == pickButton)
         {
             calenderEvent();
+        }
+        if(actionEvent.getSource() == notifyButton)
+        {
+            notifyEvent();
         }
     }
 
@@ -251,6 +240,45 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             java.util.Calendar cal = (java.util.Calendar)propertyChangeEvent.getNewValue();
             java.util.Date selDate = cal.getTime();
             dateTxtBox.setValue(simpleDateFormat.format(selDate));
+        }
+    }
+
+    private void notifyEvent() {
+        try {
+            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+            preparedStatement = dbConnection.prepareStatement("select * from product_details");
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next())
+            {
+                String today = simpleDateFormat.format((new java.util.Date()));
+                String tempDate = String.valueOf(resultSet.getDate("expiryDate"));
+                if(today.compareTo(tempDate) <= 0) {
+                    model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                }else
+                {
+                    preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`expired_products` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?)");
+                    preparedStatement.setString (1, resultSet.getString("productName"));
+                    preparedStatement.setString (2, resultSet.getString("price"));
+                    preparedStatement.setString (3, resultSet.getString("quantity"));
+                    preparedStatement.setString (4, resultSet.getString("barcode"));
+                    preparedStatement.setDate(5, resultSet.getDate("expiryDate"));
+                    preparedStatement.execute();
+                    preparedStatement = dbConnection.prepareStatement("delete from product_details where s_no = ?");
+                    preparedStatement.setInt(1,resultSet.getInt("s_no"));
+                    preparedStatement.execute();
+                }
+
+                detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
+            }
+            model = new DefaultTableModel() {
+                public boolean isCellEditable(int rowIndex, int mColIndex) {
+                    return false;
+                }
+            };
+            model.setRowCount(0);
+            init();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 

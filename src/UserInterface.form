@@ -124,11 +124,6 @@
           <text value="Update"/>
         </properties>
       </component>
-      <vspacer id="350f2">
-        <constraints>
-          <grid row="9" column="5" row-span="2" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
       <component id="5e00e" class="javax.swing.JButton" binding="deleteButton" default-binding="true">
         <constraints>
           <grid row="8" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
@@ -158,6 +153,21 @@
         </constraints>
         <properties/>
       </component>
+      <component id="f8a37" class="javax.swing.JButton" binding="notifyButton" default-binding="true">
+        <constraints>
+          <grid row="10" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="50" height="30"/>
+          </grid>
+        </constraints>
+        <properties>
+          <text value="Notify"/>
+        </properties>
+      </component>
+      <vspacer id="9efa5">
+        <constraints>
+          <grid row="9" column="5" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+        </constraints>
+      </vspacer>
     </children>
   </grid>
 </form>
