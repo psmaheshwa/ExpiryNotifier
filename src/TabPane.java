@@ -11,35 +11,28 @@ import java.text.SimpleDateFormat;
 public class TabPane extends JFrame implements ActionListener, PropertyChangeListener {
     private JTabbedPane tabbedPane1;
     private JButton scanButton, addButton, orderButton, pickButton, notifyButton, updateButton, deleteButton, addInButton;
-    private JTable orderTable, detailsTable;
+    private JTable orderTable, detailsTable, stockTable;
     private JPanel Stock, Billing;
     private JTextField textField1;
     private JTextField barcodeTxtBox, nameTxtBox,productNameTxtBox, barCodeTxtBox, priceTxtBox, quantityTxtBox, mobNotxtBox;
     private JFormattedTextField dateTxtBox;
-    private DefaultTableModel billTablemodel1 = new DefaultTableModel() {
+    private DefaultTableModel billTabled = new DefaultTableModel() {
         public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
         }
     };
-    private DefaultTableModel model2 = new DefaultTableModel() {
+    private DefaultTableModel stockTabled = new DefaultTableModel() {
         public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
         }
     };
-    private DefaultTableModel stockTablemodel = new DefaultTableModel() {
-        public boolean isCellEditable(int rowIndex, int mColIndex) {
-            return false;
-        }
-    };
-    private Table billTable = new Table();
+    private Table table = new Table();
     private Connection dbConnection;
     private PreparedStatement preparedStatement;
     private int ID;
     private CalenderWindow calenderWindow;
     private String datePattern = "yyyy-MM-dd";
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(datePattern);
-    private Table stockTable;
-
 
     TabPane() {
         this.setTitle("Expiry Notifier");
@@ -47,8 +40,8 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setContentPane(tabbedPane1);
-        billTable.init(stockTable, billTablemodel1,"select * from product_details");
-        stockTable.init(detailsTable, stockTablemodel,"select * from product_details");
+        table.init(stockTable, billTabled,"select * from product_details");
+        table.init(detailsTable, stockTabled,"select * from product_details");
         detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 TabPane.this.mouseClicked();
@@ -108,12 +101,12 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
     private void scanner(){
         String barcode = barcodeTxtBox.getText();
         String sql = "select * from product_details where barcode = " + barcode;
-        billTablemodel1 = new DefaultTableModel() {
+        billTabled = new DefaultTableModel() {
             public boolean isCellEditable(int rowIndex, int mColIndex) {
                 return false;
             }
         };
-        billTable.init(stockTable, billTablemodel1,sql);
+        table.init(stockTable, billTabled,sql);
     }
 
     private boolean validateInput(String price, String barcode, String expiryDate, String quantity, String productName) {
@@ -151,7 +144,7 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
                 preparedStatement.setString (4, barcode);
                 preparedStatement.setDate(5, Date.valueOf(expiryDate));
                 preparedStatement.execute();
-                tableRefresh(detailsTable, stockTablemodel);
+                tableRefresh(detailsTable, stockTabled);
                 dbConnection.close();
                 clear();
             } catch (SQLException e) {
@@ -168,20 +161,19 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
         try {
             dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
             String sql = "delete from product_details where barcode = ?";
-            //preparedStatement = dbConnection.prepareStatement("DELETE FROM product_details where barcode = '+barCode'");
             preparedStatement = dbConnection.prepareStatement(sql);
             preparedStatement.setString(1,barCode);
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        stockTablemodel = new DefaultTableModel() {
+        stockTabled = new DefaultTableModel() {
             public boolean isCellEditable(int rowIndex, int mColIndex) {
                 return false;
             }
         };
-        stockTablemodel.setRowCount(0);
-        stockTable.init(detailsTable, stockTablemodel,"select * from product_details");
+        stockTabled.setRowCount(0);
+        table.init(detailsTable, stockTabled,"select * from product_details");
         clear();
     }
 
@@ -197,7 +189,7 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
             preparedStatement.setDate(5,Date.valueOf(dateTxtBox.getText()));
             preparedStatement.setInt(6,ID);
             preparedStatement.execute();
-            tableRefresh(detailsTable, stockTablemodel);
+            tableRefresh(detailsTable, stockTabled);
             dbConnection.close();
             clear();
         } catch (SQLException e) {
@@ -241,7 +233,7 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
                 String today = simpleDateFormat.format((new java.util.Date()));
                 String tempDate = String.valueOf(resultSet.getDate("expiryDate"));
                 if(today.compareTo(tempDate) <= 0) {
-                    stockTablemodel.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                    stockTabled.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
                 }else
                 {
                     preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`expired_products` (`s_no`, `productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?,?)");
@@ -259,7 +251,7 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
 
                 detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
             }
-            tableRefresh(detailsTable, stockTablemodel);
+            tableRefresh(detailsTable, stockTabled);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -272,7 +264,7 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
             }
         };
         model.setRowCount(0);
-        stockTable.init(jTable,model,"select * from product_details");
+        table.init(jTable,model,"select * from product_details");
         clear();
     }
 
