@@ -2,9 +2,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
-public class Table extends JTable {
+class Table extends JTable {
 
-    public void init(JTable stockTable, DefaultTableModel model,String sql) {
+    void init(JTable stockTable, DefaultTableModel model, String sql) {
         stockTable.setModel(model);
         stockTable.setAutoCreateRowSorter(true);
         stockTable.setShowHorizontalLines(false);
