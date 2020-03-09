@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.sql.*;
 
-public class Table {
+public class Table extends JTable {
 
     public void init(JTable stockTable, DefaultTableModel model,String sql) {
         stockTable.setModel(model);

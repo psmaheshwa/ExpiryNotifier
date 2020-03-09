@@ -76,7 +76,7 @@ public class LoginForm implements ActionListener {
             String password = String.copyValueOf(temp_pwd);
             if(checkLogin(usernameField.getText(), password)) {
                 frame.setVisible(false);
-                new UserInterface();
+                new TabPane();
             }
             else {
                 JOptionPane.showMessageDialog(null, "Login failed!","Failed!!",

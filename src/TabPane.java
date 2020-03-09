@@ -8,53 +8,63 @@ import java.beans.PropertyChangeListener;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 
-public class UserInterface extends JFrame implements ActionListener, PropertyChangeListener  {
-    private JPanel panel;
-    private JTextField barCodeTxtBox;
-    private JTextField productNameTxtBox;
-    private JTextField priceTxtBox;
-    private JTextField quantityTxtBox;
-    private JTable detailsTable;
-    private JButton addInButton;
-    private JButton pickButton;
-    private JButton deleteButton;
-    private JButton updateButton;
+public class TabPane extends JFrame implements ActionListener, PropertyChangeListener {
+    private JTabbedPane tabbedPane1;
+    private JButton scanButton, addButton, orderButton, pickButton, notifyButton, updateButton, deleteButton, addInButton;
+    private JTable orderTable, detailsTable;
+    private JPanel Stock, Billing;
+    private JTextField textField1;
+    private JTextField barcodeTxtBox, nameTxtBox,productNameTxtBox, barCodeTxtBox, priceTxtBox, quantityTxtBox, mobNotxtBox;
     private JFormattedTextField dateTxtBox;
-    private JButton notifyButton;
-    private DefaultTableModel model = new DefaultTableModel() {
+    private DefaultTableModel billTablemodel1 = new DefaultTableModel() {
         public boolean isCellEditable(int rowIndex, int mColIndex) {
             return false;
         }
     };
+    private DefaultTableModel model2 = new DefaultTableModel() {
+        public boolean isCellEditable(int rowIndex, int mColIndex) {
+            return false;
+        }
+    };
+    private DefaultTableModel stockTablemodel = new DefaultTableModel() {
+        public boolean isCellEditable(int rowIndex, int mColIndex) {
+            return false;
+        }
+    };
+    private Table billTable = new Table();
     private Connection dbConnection;
     private PreparedStatement preparedStatement;
-    private ResultSet resultSet;
     private int ID;
     private CalenderWindow calenderWindow;
     private String datePattern = "yyyy-MM-dd";
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(datePattern);
-    private Table table = new Table();
+    private Table stockTable;
 
-    UserInterface() {
+
+    TabPane() {
         this.setTitle("Expiry Notifier");
         this.setMinimumSize(new Dimension(800,600));
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setContentPane(panel);
-        this.pack();
-        table.init(detailsTable,model,"select * from product_details");
+        this.setContentPane(tabbedPane1);
+        billTable.init(stockTable, billTablemodel1,"select * from product_details");
+        stockTable.init(detailsTable, stockTablemodel,"select * from product_details");
         detailsTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                UserInterface.this.mouseClicked();
+                TabPane.this.mouseClicked();
             }
         });
         actionEvent();
         dateTxtBox.setValue(simpleDateFormat.format(new java.util.Date()));
         calenderWindow = new CalenderWindow();
         calenderWindow.addPropertyChangeListener(this);
+        this.pack();
     }
 
     private void actionEvent(){
+        addButton.addActionListener(this);
+        orderButton.addActionListener(this);
+        scanButton.addActionListener(this);
         addInButton.addActionListener(this);
         deleteButton.addActionListener(this);
         updateButton.addActionListener(this);
@@ -64,6 +74,12 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
 
     @Override
     public void actionPerformed(ActionEvent actionEvent) {
+        if(actionEvent.getSource() == addButton) {
+            addItem();
+        }
+        if (actionEvent.getSource() == scanButton) {
+            scanner();
+        }
         if(actionEvent.getSource() == addInButton){
             addStock();
         }
@@ -83,6 +99,21 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         {
             notifyEvent();
         }
+    }
+
+    private void addItem() {
+
+    }
+
+    private void scanner(){
+        String barcode = barcodeTxtBox.getText();
+        String sql = "select * from product_details where barcode = " + barcode;
+        billTablemodel1 = new DefaultTableModel() {
+            public boolean isCellEditable(int rowIndex, int mColIndex) {
+                return false;
+            }
+        };
+        billTable.init(stockTable, billTablemodel1,sql);
     }
 
     private boolean validateInput(String price, String barcode, String expiryDate, String quantity, String productName) {
@@ -120,7 +151,7 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                 preparedStatement.setString (4, barcode);
                 preparedStatement.setDate(5, Date.valueOf(expiryDate));
                 preparedStatement.execute();
-                tableRefresh(detailsTable,model);
+                tableRefresh(detailsTable, stockTablemodel);
                 dbConnection.close();
                 clear();
             } catch (SQLException e) {
@@ -144,34 +175,34 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        model = new DefaultTableModel() {
+        stockTablemodel = new DefaultTableModel() {
             public boolean isCellEditable(int rowIndex, int mColIndex) {
                 return false;
             }
         };
-        model.setRowCount(0);
-        table.init(detailsTable,model,"select * from product_details");
+        stockTablemodel.setRowCount(0);
+        stockTable.init(detailsTable, stockTablemodel,"select * from product_details");
         clear();
     }
 
     private void updateStock() {
         try {
-                dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
-                String sql = "UPDATE product_details SET barcode = ?," + "productName = ? , " + "price = ? ,"+ "quantity = ? , " + "expiryDate = ?  " + "where s_no = ?";
-                preparedStatement = dbConnection.prepareStatement(sql);
-                preparedStatement.setString(1,barCodeTxtBox.getText());
-                preparedStatement.setString(2,productNameTxtBox.getText());
-                preparedStatement.setString(3,priceTxtBox.getText());
-                preparedStatement.setString(4,quantityTxtBox.getText());
-                preparedStatement.setDate(5,Date.valueOf(dateTxtBox.getText()));
-                preparedStatement.setInt(6,ID);
-                preparedStatement.execute();
-                tableRefresh(detailsTable,model);
-                dbConnection.close();
-                clear();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+            String sql = "UPDATE product_details SET barcode = ?," + "productName = ? , " + "price = ? ,"+ "quantity = ? , " + "expiryDate = ?  " + "where s_no = ?";
+            preparedStatement = dbConnection.prepareStatement(sql);
+            preparedStatement.setString(1,barCodeTxtBox.getText());
+            preparedStatement.setString(2,productNameTxtBox.getText());
+            preparedStatement.setString(3,priceTxtBox.getText());
+            preparedStatement.setString(4,quantityTxtBox.getText());
+            preparedStatement.setDate(5,Date.valueOf(dateTxtBox.getText()));
+            preparedStatement.setInt(6,ID);
+            preparedStatement.execute();
+            tableRefresh(detailsTable, stockTablemodel);
+            dbConnection.close();
+            clear();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void mouseClicked(){
@@ -204,17 +235,17 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
         try {
             dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
             preparedStatement = dbConnection.prepareStatement("select * from product_details");
-            resultSet = preparedStatement.executeQuery();
+            ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
             {
                 String today = simpleDateFormat.format((new java.util.Date()));
                 String tempDate = String.valueOf(resultSet.getDate("expiryDate"));
                 if(today.compareTo(tempDate) <= 0) {
-                    model.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
+                    stockTablemodel.addRow(new Object[]{resultSet.getInt("s_no"), resultSet.getString("barcode"), resultSet.getString("productName"), resultSet.getString("price"), resultSet.getString("quantity"), resultSet.getDate("expiryDate")});
                 }else
                 {
                     preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`expired_products` (`s_no`, `productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?,?)");
-                    preparedStatement.setInt(1,resultSet.getInt("s_no"));
+                    preparedStatement.setInt(1, resultSet.getInt("s_no"));
                     preparedStatement.setString (2, resultSet.getString("productName"));
                     preparedStatement.setString (3, resultSet.getString("price"));
                     preparedStatement.setString (4, resultSet.getString("quantity"));
@@ -222,13 +253,13 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
                     preparedStatement.setDate(6, resultSet.getDate("expiryDate"));
                     preparedStatement.execute();
                     preparedStatement = dbConnection.prepareStatement("delete from product_details where s_no = ?");
-                    preparedStatement.setInt(1,resultSet.getInt("s_no"));
+                    preparedStatement.setInt(1, resultSet.getInt("s_no"));
                     preparedStatement.execute();
                 }
 
                 detailsTable.setDefaultRenderer(Object.class,new JTableUtilities());
             }
-            tableRefresh(detailsTable,model);
+            tableRefresh(detailsTable, stockTablemodel);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -241,8 +272,10 @@ public class UserInterface extends JFrame implements ActionListener, PropertyCha
             }
         };
         model.setRowCount(0);
-        table.init(jTable,model,"select * from product_details");
+        stockTable.init(jTable,model,"select * from product_details");
         clear();
     }
 
 }
+
+
