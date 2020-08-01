@@ -55,7 +55,7 @@ public class LoginForm implements ActionListener {
     private Boolean checkLogin(String uname, String pwd)
     {
         try {
-            Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier_login?useSSL=false","root","Wanna Cry7!");
+            Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier_login?useSSL=false","root","user");
             PreparedStatement preparedStatement = dbConnection.prepareStatement("select * from Login where username=? and password=?");
             ResultSet resultSet;
             preparedStatement.setString(1, uname);
