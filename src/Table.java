@@ -21,7 +21,7 @@ public class Table extends JTable {
 
     private void dbInit(JTable table,DefaultTableModel model,String sql) {
         try {
-            Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false", "root", "Wanna Cry7!");
+            Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false", "root", "root");
             PreparedStatement preparedStatement = dbConnection.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
