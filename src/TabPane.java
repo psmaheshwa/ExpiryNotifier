@@ -136,7 +136,7 @@ public class TabPane extends JFrame implements ActionListener, PropertyChangeLis
 
         if (validateInput(price, barcode, expiryDate, quantity, productName)){
             try {
-                dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","Wanna Cry7!");
+                dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ExpiryNotifier?useSSL=false","root","root");
                 preparedStatement = dbConnection.prepareStatement("INSERT INTO `ExpiryNotifier`.`product_details` (`productName`, `price`, `quantity`, `barcode`, `expiryDate`) VALUES (?,?,?,?,?)");
                 preparedStatement.setString (1, productName);
                 preparedStatement.setString (2, price);
